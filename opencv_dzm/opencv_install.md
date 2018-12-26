@@ -1,6 +1,7 @@
 # opencv 准备
 ## 一、安装opencv
 1、去官网下载opencv压缩包，解压之后进入文件夹目录
+
 2、执行下面脚本
 ```shell
 mkdir build
@@ -44,7 +45,7 @@ export LD_LIBRARY_PATH=$:/home/dzm/opencv3_4/lib64
 ```
 运行成功
 
-## 3、makefile手动
+## 3、makefile手动添加opencv库
 ```
 INCLUDES = -I/home/dzm/opencv3_4/include
 LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui
@@ -53,3 +54,12 @@ LIBDIRS = -L/home/dzm/opencv3_4/lib64
 main.o : main.cpp
 	g++ -o main.o main.cpp $(INCLUDES) $(LIBDIRS) $(LIBS)
 ```
+编译成功，运行时需要增加链接库目录，可以通过设置环境变量
+```
+export LD_LIBRARY_PATH=$:/home/dzm/opencv3_4/lib64
+```
+运行成功
+
+
+
+
