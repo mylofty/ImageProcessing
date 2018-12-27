@@ -61,5 +61,23 @@ export LD_LIBRARY_PATH=$:/home/dzm/opencv3_4/lib64
 运行成功
 
 
+**tips**: 以上方法编译成功之后，可执行文件运行时仍可能找不到so文件，当so文件不在系统默认路径（/lib 和 /lib64）之下时，需要增加LD_LIBRARY_PATH，当不能修改path时，可以在g++中添加命令**-Wl, -rpath=$(SOPATH)**
+```
+INCLUDES = -I/home/dzm/opencv3_4/include
+LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs
+LIBDIRS = -L/home/dzm/opencv3_4/lib64
+SOPATH = /home/dzm/opencv3_4/lib64
+
+all: pixel_scan.o mat.o
+pixel_scan.o : pixel_scan.cpp
+	g++ -o pixel_scan.o pixel_scan.cpp $(INCLUDES) $(LIBDIRS) $(LIBS) -Wl,-rpath=$(SOPATH)
+mat.o : mat.cpp
+	g++ -o mat.o mat.cpp $(INCLUDES) $(LIBDIRS) $(LIBS)
+
+.PHONY: clean
+clean:
+	rm *.o
+```
+
 
 
