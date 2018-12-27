@@ -23,6 +23,7 @@ A.copyTo(G);
 ```c++
 Mat M(20, 20, CV_8UC3, Scalar(0,0,255))  
 // 构建20×20图像，每个像素8bit， 3通道， 初始化为（0,0,255），BGR 红色
+// CV_8UC3 变量并未定义在cv命名空间中， opencv2/core/hal/interface.h
 cv::imshow("M picture", M);
 ```
 （2）、构建多维矩阵
@@ -35,4 +36,107 @@ cv::Mat L(3, sz, CV_8UC1, cv::Scalar(0));
 Mat E = Mat::eye(4, 4, CV_64F);
 Mat o = Mat::ones(2, 2, CV_32F);
 Mat Z = Mat::zeros(3, 3, CV_8UC1);
+```
+
+## 二、Mat 像素级访问
+Mat矩阵主要有三种访问方式：**C指针访问、迭代器访问、随机访问**，图片连续存储下，通常访问速度 C指针 > 随机访问 > 迭代器 
+```c++
+//! [scan-c]
+Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
+{
+    // accept only char type matrices
+    CV_Assert(I.depth() == CV_8U);
+
+    int channels = I.channels();
+
+    int nRows = I.rows;
+    int nCols = I.cols * channels;
+
+    if (I.isContinuous())
+    {
+        nCols *= nRows;
+        nRows = 1;
+    }
+
+    int i,j;
+    uchar* p;
+    for( i = 0; i < nRows; ++i)
+    {
+        p = I.ptr<uchar>(i);
+        for ( j = 0; j < nCols; ++j)
+        {
+            p[j] = table[p[j]];
+        }
+    }
+    return I;
+}
+//! [scan-c]
+
+//! [scan-iterator]
+Mat& ScanImageAndReduceIterator(Mat& I, const uchar* const table)
+{
+    // accept only char type matrices
+    CV_Assert(I.depth() == CV_8U);
+
+    const int channels = I.channels();
+    switch(channels)
+    {
+    case 1:
+        {
+            MatIterator_<uchar> it, end;
+            for( it = I.begin<uchar>(), end = I.end<uchar>(); it != end; ++it)
+                *it = table[*it];
+            break;
+        }
+    case 3:
+        {
+            MatIterator_<Vec3b> it, end;
+            for( it = I.begin<Vec3b>(), end = I.end<Vec3b>(); it != end; ++it)
+            {
+                (*it)[0] = table[(*it)[0]];
+                (*it)[1] = table[(*it)[1]];
+                (*it)[2] = table[(*it)[2]];
+            }
+        }
+    }
+
+    return I;
+}
+//! [scan-iterator]
+
+//! [scan-random]
+Mat& ScanImageAndReduceRandomAccess(Mat& I, const uchar* const table)
+{
+    // accept only char type matrices
+    CV_Assert(I.depth() == CV_8U);
+
+    const int channels = I.channels();
+    switch(channels)
+    {
+    case 1:
+        {
+            for( int i = 0; i < I.rows; ++i)
+                for( int j = 0; j < I.cols; ++j )
+                    I.at<uchar>(i,j) = table[I.at<uchar>(i,j)];
+            break;
+        }
+    case 3:
+        {
+         Mat_<Vec3b> _I = I;
+
+         for( int i = 0; i < I.rows; ++i)
+            for( int j = 0; j < I.cols; ++j )
+               {
+                   _I(i,j)[0] = table[_I(i,j)[0]];
+                   _I(i,j)[1] = table[_I(i,j)[1]];
+                   _I(i,j)[2] = table[_I(i,j)[2]];
+            }
+         I = _I;
+         break;
+        }
+    }
+
+    return I;
+}
+//! [scan-random]
 ```
