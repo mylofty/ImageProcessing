@@ -39,7 +39,7 @@ Mat Z = Mat::zeros(3, 3, CV_8UC1);
 ```
 
 ## 二、Mat 像素级访问
-Mat矩阵主要有三种访问方式：**C指针访问、迭代器访问、随机访问**，图片连续存储下，通常访问速度 C指针 > 随机访问 > 迭代器 
+Mat矩阵主要有三种访问方式：**C指针访问、迭代器访问、随机访问**，图片连续存储下，通常访问速度 C指针(推荐） > 迭代器（安全） > 随机访问（不推荐）
 ```c++
 //! [scan-c]
 Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
